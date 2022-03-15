@@ -12,8 +12,6 @@ export async function fetchList({commit}) {
     const promises = await Promise.all([getImagesList()]);
     const data = promises.map(res => res.data)[0] || [];
 
-    console.log(data);
-
     commit('set_list', data);
   } catch (e) {
     console.warn(e);

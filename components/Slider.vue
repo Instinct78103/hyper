@@ -1,23 +1,86 @@
 <template>
   <div class="container">
-    <el-carousel :interval="4000" type="card" height="200px">
-      <el-carousel-item v-for="item in getImages" :key="item.id">
-        <h3 class="medium">{{ item.name }}</h3>
-        <img :src="item.src" :alt="item.name">
-      </el-carousel-item>
-    </el-carousel>
-    <input type="file" @change="handlePreview">
+    <div class="carousel" @click="$refs['my-modal'].show()">
+      <b-carousel
+        id="carousel-1"
+        :interval="0"
+        fade
+        indicators
+        background="#eee"
+        img-width="1024"
+        img-height="480"
+        style="text-shadow: 1px 1px 2px #333;"
+        v-model="slide"
+      >
+        <b-carousel-slide
+          v-for="item in getImages"
+          :caption="item.name"
+          :img-src="item.src"
+          :text="item.desc"
+          :key="item.id"
+        ></b-carousel-slide>
+      </b-carousel>
+    </div>
+    <b-form @submit="onSubmit">
+      <b-form-file
+        size="sm"
+        accept="image/*"
+        v-model="form.file"
+      ></b-form-file>
+      <b-form-group
+        id="input-group-1"
+        label=""
+        label-for="input-1"
+        description=""
+      >
+        <b-form-input
+          id="input-1"
+          v-model="form.name"
+          type="text"
+          placeholder="Name"
+        ></b-form-input>
+        <b-form-input
+          id="input-2"
+          v-model="form.desc"
+          type="text"
+          placeholder="Description"
+        ></b-form-input>
+      </b-form-group>
+      <b-button type="submit" variant="primary">Submit</b-button>
+    </b-form>
+    <b-modal ref="my-modal" size="xl" hide-header hide-footer>
+      <div class="d-block text-center">
+        <b-carousel
+          :interval="4000"
+          controls
+          background="#eee"
+          img-width="1024"
+          img-height="480"
+          style="text-shadow: 1px 1px 2px #333;"
+          v-model="slide"
+        >
+          <b-carousel-slide
+            v-for="item in getImages"
+            :img-src="item.src"
+            :key="item.id"
+          ></b-carousel-slide>
+        </b-carousel>
+      </div>
+    </b-modal>
   </div>
 </template>
 
 <script>
-
 export default {
   name: 'Slider',
-
   data() {
     return {
-      file: '',
+      slide: 0,
+      form: {
+        desc: '',
+        name: '',
+        file: null,
+      },
     };
   },
 
@@ -30,19 +93,20 @@ export default {
       return this.$store.getters['slider/get_list'];
     },
   },
-
   methods: {
-    readFile() {
-      console.log(this.fileList);
+    showModal() {
+      this.$refs['my-modal'].show();
     },
-
-    handleRemove(file, fileList) {
-      console.log(file, fileList);
+    hideModal() {
+      this.$refs['my-modal'].hide();
     },
+    onSubmit(e) {
+      e.preventDefault();
 
-    handlePreview(e) {
-
-      const file = e.target.files[0];
+      if (Object.values(this.form).some(item => item === '')) {
+        alert('Fill in all the fields, please!');
+        return;
+      }
 
       const reader = new FileReader();
       const that = this;
@@ -51,19 +115,15 @@ export default {
         return function (e) {
           that.$store.dispatch('slider/pushImages', {
             src: e.target.result,
-            name: 'Hardcoded Name'
+            name: that.form.name,
+            desc: that.form.desc,
           });
         };
-      })(file);
-
-      reader.readAsDataURL(e.target.files[0]);
-    },
-
-    handleExceed(files, fileList) {
-      this.$message.warning(`The limit is 3, you selected ${files.length} files this time, add up to ${files.length + fileList.length} totally`);
-    },
-    beforeRemove(file, fileList) {
-      return this.$confirm(`Cancel the transfert of ${file.name} ?`);
+      })(that.form.file);
+      if (that.form.file) {
+        reader.readAsDataURL(that.form.file);
+      }
+      e.target.reset();
     },
   },
 
@@ -72,7 +132,7 @@ export default {
 
 <style scoped>
 .container {
-  max-width: 992px;
+  max-width: 480px;
   margin: 0 auto;
 }
 </style>
