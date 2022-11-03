@@ -1,6 +1,4 @@
-# See http://stelsh-hyper.herokuapp.com/
-
-Add image and description
+# Add image and description: http://stelsh-hyper.herokuapp.com/
 
 ## Build Setup
 
