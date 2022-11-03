@@ -1,5 +1,7 @@
 # See http://stelsh-hyper.herokuapp.com/
 
+Add image and description
+
 ## Build Setup
 
 ```bash
